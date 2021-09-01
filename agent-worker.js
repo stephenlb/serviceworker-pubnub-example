@@ -10,6 +10,7 @@ onconnect = event => {
     // TODO Create tab object to keep track of ports.
     // TODO Create setInterval() for agent tab management.
     port.onmessage = messageEvent => {
+        console.log('received message inside webworker');
         port.postMessage(messageEvent.data);
     }
 }
