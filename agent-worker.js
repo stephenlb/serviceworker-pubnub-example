@@ -3,6 +3,7 @@
 // ... pubnub = new PubNub({})...
 // ... pubnub.subscribe()
 // ... pubnub.addListener()...
+// ... create event dispatcher that tracks webworker ports to channel subscriptions.
 
 onconnect = event => {
     let port = event.ports[0];
