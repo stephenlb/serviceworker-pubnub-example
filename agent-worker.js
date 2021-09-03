@@ -115,14 +115,8 @@ onconnect = event => {
     }
 }
 
-// TODO
-/*ondisconnect = event => {
-    let port = event.ports[0];
-    // TODO clear this tab from stuff...
-    // TODO cleanup etc.
-}*/
-
 function cleanup(port) {
-    pubnub.unsubscribeAll();
+    // TODO
+    //pubnub.unsubscribeAll();
     // TODO
 }
