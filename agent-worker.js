@@ -16,16 +16,19 @@ const considerOfflineAfter = 120 * 1000; // 2 minutes (in milliseconds)
 // Check Tab Activity
 setInterval( () => {
     const now = +new Date();
-    let allTabsInactive = false; // check if all are inactive
+    let allTabsInactive = true; // check if all are inactive
 
     Object.keys(ports).forEach( key => {
         const port = ports[key];
         const lastSeen = Math.round((now - port.tab.lastSeen) / 1000);
 
-        console.info(`Agent is considered inactive for ${lastSeen} seconds on tab: ${port.id}`);
+        // Track if all tabs are inactive (agent is totally gone)
+        allTabsInactive &&= !port.tab.active;
 
-        allTabsInactive ||= !port.tab.active;
-        if (!port.tab.active) return;
+        // If the tab is active, no need to track it for inactivity.
+        if (port.tab.active) return;
+
+        console.info(`Agent is considered inactive for ${lastSeen} seconds on tab: ${port.id}`);
         if (now - port.tab.lastSeen > considerInactiveAfter) {
             console.warn(`Agent is considered Inactive for tab: ${port.id}`);
             // TODO consider the angent inactive in this tab
@@ -41,7 +44,7 @@ setInterval( () => {
     });
 
     if (allTabsInactive) {
-        console.warn('Agent is considered OFFLINE for ALL TABS');
+        console.warn('Agent is considered inactive for ALL TABS');
         // TODO the agent is totally gone away, do something
     }
 }, 1000 );
@@ -65,7 +68,8 @@ pubnub.addListener({
 // Shard Web Worker 
 onconnect = event => {
     let port = event.ports[0];
-    let portTracker = ports[`portId:${++instance}`] = {
+    //TODO fix
+    port.tracker = ports[`portId:${++instance}`] = {
         id: instance,
         port: port,
         tab: { active: true, lastSeen: +new Date() }
@@ -74,12 +78,11 @@ onconnect = event => {
         let data = messageEvent.data;
         let eventType = data.type;
         let channel = `${instance}.${data.channel}`;
+        let tracker = messageEvent.target.tracker;
 
-        console.log('received a message inside webworker', data);
+        console.log('received a message inside webworker', data, messageEvent);
         data.type = 'echo';
         port.postMessage(data); // echo back debugging
-        //port.postMessage({ a: a, b, b: data: data, type: 'echo'}); // echo back debugging
-        return;
 
         switch (eventType) {
             case 'subscribe':
@@ -91,8 +94,8 @@ onconnect = event => {
                 break;
 
             case 'activity':
-                portTracker.tab.active = data.active;
-                portTracker.tab.lastSeen = +new Date();
+                tracker.tab.active = data.active;
+                tracker.tab.lastSeen = +new Date();
                 break;
 
             default:
