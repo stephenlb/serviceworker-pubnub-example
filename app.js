@@ -34,7 +34,7 @@ document.addEventListener('visibilitychange', event => {
     });
 });
 worker.onerror = event => {
-    console.log('There is an error with your worker!', event);
+    console.log('There is an error with the worker!', event);
 };
 
 
@@ -43,6 +43,14 @@ worker.port.postMessage({
     type: 'subscribe',
     channel: 'my_channel_name'
 });
+
+setInterval( () => {
+    worker.port.postMessage({
+        type: 'publish',
+        channel: 'my_channel_name',
+        extraData: 'yup!'
+    });
+}, 1000 );
 
 // Recenve Message from PubNub and other WebWorker Events
 worker.port.onmessage = function(event) {

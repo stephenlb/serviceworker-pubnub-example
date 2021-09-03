@@ -68,12 +68,14 @@ pubnub.addListener({
 // Shard Web Worker 
 onconnect = event => {
     let port = event.ports[0];
+
     //TODO fix
     port.tracker = ports[`portId:${++instance}`] = {
         id: instance,
         port: port,
         tab: { active: true, lastSeen: +new Date() }
     };
+
     port.onmessage = messageEvent => {
         let data = messageEvent.data;
         let eventType = data.type;
@@ -86,10 +88,12 @@ onconnect = event => {
 
         switch (eventType) {
             case 'subscribe':
+                console.log(`Subscribing to: ${channel}`);
                 pubnub.subscribe({ channel: channel });
                 break;
 
             case 'publish':
+                console.log(`Publishing to: ${channel}`);
                 pubnub.publish({ channel: channel, message: data });
                 break;
 
