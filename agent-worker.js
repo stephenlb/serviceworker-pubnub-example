@@ -1,18 +1,80 @@
 'use strict';
-// TODO put PubNub here.
-// ... pubnub = new PubNub({})...
-// ... pubnub.subscribe()
-// ... pubnub.addListener()...
-// ... create event dispatcher that tracks webworker ports to channel subscriptions.
 
+// Send/Receive messages from Other Users and Devices
+const pubnub = new PubNub({
+    publishKey : "demo",
+    subscribeKey : "demo",
+    uuid: "myUniqueSupportAgentID"
+});
+
+// Keep track of local browser windows and tabs
+const ports = {};
+let instance = 0;
+const considerInactiveAfter = 30 * 1000; // 30 seconds (in milliseconds)
+const considerOfflineAfter = 120 * 1000; // 2 minutes (in milliseconds)
+
+// Check Tab Activity
+setInterval( () => {
+    const now = +new Date();
+    for (port of ports) {
+        if (!port.tab.active) continue;
+        if (now - port.lastSeen > considerInactiveAfter) {
+            // TODO consider the angent inactive in this tab
+            // yellow status
+        }
+        if (now - port.lastSeen > considerOfflineAfter) {
+            // TODO consider the angent as abandond inactive in this tab
+            // offline status
+            // send pubnub.publish({ channel .... etc.
+        }
+    }
+}, 1000 );
+
+// Add Listener to WAN messaging to receive data from remote users and devices
+pubnub.addListener({
+    status: function(statusEvent) {
+        if (statusEvent.category === "PNConnectedCategory") {
+            publishSampleMessage();
+        }
+    },
+    message: function(msg) {
+        
+    },
+    presence: function(presenceEvent) {
+        // This is where you handle presence. Not important for now :)
+    }
+});
+
+// Shard Web Worker 
 onconnect = event => {
     let port = event.ports[0];
-    // TODO Then pass messages between tabs.
-    // TODO Create tab object to keep track of ports.
-    // TODO Create setInterval() for agent tab management.
+    let portTracker = ports[++instance] = { port: port, tab: { active: true } };
     port.onmessage = messageEvent => {
-        console.log('received message inside webworker');
-        port.postMessage(messageEvent.data);
+        let data = messageEvent.data;
+        let eventType = data.type;
+
+        console.log('received a message inside webworker', data);
+        port.postMessage(data); // echo back debugging
+
+        switch (eventType) {
+            case 'subscribe':
+                let channel = `${instance}.${data.channel}`;
+                pubnub.subscribe({ channel: channel });
+                break;
+
+            case 'publish':
+                let channel = `${instance}.${data.channel}`;
+                pubnub.publish({ channel: channel, message: data });
+                break;
+
+            case 'activity':
+                portTracker.tab.active = data.active;
+                portTracker.tab.lastSeen = +new Date();
+                break;
+
+            default:
+                console.warn('unhandled eventType in agent-worker.js');
+        }
     }
 }
 
