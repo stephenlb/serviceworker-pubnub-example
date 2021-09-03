@@ -62,7 +62,7 @@ worker.port.onmessage = function(event) {
 
     switch (eventType) {
         case 'pubnubMessage':
-            console.log('received pubnubMessage', data);
+            console.log('RECEIVED pubnubMessage', data);
             break;
 
         case 'echo':

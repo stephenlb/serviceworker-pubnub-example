@@ -54,19 +54,24 @@ setInterval( () => {
 console.log('pubnub.addListener');
 pubnub.addListener({
     status: function(statusEvent) {
-        if (statusEvent.category === "PNConnectedCategory") {
-            publishSampleMessage();
-        }
+        console.info(statusEvent);
     },
-    message: function(msg) {
-        // TODO route to parent tab
+    message: function(message) {
+        let channel = message.channel;
+        let portId = channel.split('.')[0];
+        let tracker = ports[`portId:${portId}`];
+        let port = tracker.port;
+
+        message.type = 'pubnubMessage';
+        port.postMessage(message);
     },
     presence: function(presenceEvent) {
         // This is where you handle presence. Not important for now :)
     }
 });
 
-// Shard Web Worker 
+// A New Tab was opened
+// The onconnect method is called when that happens
 onconnect = event => {
     let port = event.ports[0];
 
@@ -90,7 +95,8 @@ onconnect = event => {
         switch (eventType) {
             case 'subscribe':
                 console.log(`Subscribing to: ${channel}`);
-                pubnub.subscribe({ channel: channel });
+                pubnub.subscribe({ channels: [channel] });
+                //pubnub.subscribe({ channels: ["hello_world"] });
                 break;
 
             case 'publish':
