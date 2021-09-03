@@ -6,5 +6,4 @@ RUN apk add zsh
 RUN apk add openssl-dev
 
 ## Start Webserver Port
-EXPOSE 4443:4443
 ENTRYPOINT ["/root/website/webserver/generate.sh"]
