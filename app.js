@@ -48,9 +48,9 @@ setInterval( () => {
     worker.port.postMessage({
         type: 'publish',
         channel: 'my_channel_name',
-        extraData: 'yup!'
+        extraData: 'Hurray!'
     });
-}, 1000 );
+}, 2000 );
 
 // Receive Messages from PubNub and other WebWorker Events
 worker.port.onmessage = event => {
@@ -62,7 +62,7 @@ worker.port.onmessage = event => {
 
     switch (eventType) {
         case 'pubnubMessage':
-            console.log('RECEIVED pubnubMessage', data);
+            console.log('Received PubNub Message', data);
             break;
 
         case 'echo':

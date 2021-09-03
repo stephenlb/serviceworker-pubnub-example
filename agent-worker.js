@@ -20,22 +20,23 @@ setInterval( () => {
 
     Object.keys(ports).forEach( key => {
         const tracker = ports[key];
+        const tab = tracker.tab;
         const port = tracker.port;
-        const lastSeen = Math.round((now - port.tab.lastSeen) / 1000);
+        const lastSeen = Math.round((now - tab.lastSeen) / 1000);
 
         // Track if all tabs are inactive (agent is totally gone)
-        allTabsInactive &&= !port.tab.active;
+        allTabsInactive &&= !tab.active;
 
         // If the tab is active, no need to track it for inactivity.
-        if (port.tab.active) return;
+        if (tab.active) return;
 
         console.info(`Agent is considered inactive for ${lastSeen} seconds on tab: ${port.id}`);
-        if (now - port.tab.lastSeen > considerInactiveAfter) {
+        if (now - tab.lastSeen > considerInactiveAfter) {
             console.warn(`Agent is considered Inactive for tab: ${port.id}`);
             // TODO consider the agent inactive in this tab
             // yellow status
         }
-        if (now - port.tab.lastSeen > considerOfflineAfter) {
+        if (now - port.lastSeen > considerOfflineAfter) {
             console.warn(`Agent is considered OFFLINE for tab: ${port.id}`);
             // TODO consider the agent as abandoned and inactive in this tab
             // offline status
@@ -96,10 +97,11 @@ onconnect = event => {
 
     // Receiving messages from parent windows/tabs.
     port.onmessage = messageEvent => {
+        let port = messageEvent.target;
         let data = messageEvent.data;
+        let tracker = port.tracker;
         let eventType = data.type;
-        let channel = `${instance}.${data.channel}`;
-        let tracker = messageEvent.target.tracker;
+        let channel = `${tracker.id}.${data.channel}`;
 
         console.log('received a message inside webworker', data, messageEvent);
         data.type = 'echo';
