@@ -19,7 +19,8 @@ setInterval( () => {
     let allTabsInactive = true; // check if all are inactive
 
     Object.keys(ports).forEach( key => {
-        const port = ports[key];
+        const tracker = ports[key];
+        const port = tracker.port;
         const lastSeen = Math.round((now - port.tab.lastSeen) / 1000);
 
         // Track if all tabs are inactive (agent is totally gone)
@@ -63,7 +64,18 @@ pubnub.addListener({
         let port = tracker.port;
 
         message.type = 'pubnubMessage';
-        port.postMessage(message);
+
+        // --------
+        // Send to Originating Tab
+        //port.postMessage(message);
+
+        // --------
+        // Alternatively this message can be broadcast to all tabs like this:
+        Object.keys(ports).forEach(key => {
+            const tracker = ports[key];
+            const port = tracker.port;
+            port.postMessage(message);
+        });
     },
     presence: presenceEvent => {
         // This is where you handle presence. Not important for now :)
