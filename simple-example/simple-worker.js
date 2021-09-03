@@ -16,9 +16,7 @@ pubnub.addListener({
         message.type = 'pubnubMessage';
 
         // Send PubNub message to all tabs
-        Object.keys(ports).forEach(key => {
-            const tracker = ports[key];
-            const port = tracker.port;
+        ports.forEach(port => {
             port.postMessage(message);
         });
     }
@@ -26,24 +24,16 @@ pubnub.addListener({
 
 // A New Tab was opened
 // The onconnect method is called when that happens
-let instance = 0;
-const ports = {};
+const ports = [];
 onconnect = event => {
     let port = event.ports[0];
-
-    // Save reference to port to be used later.
-    port.tracker = ports[`portId:${++instance}`] = {
-        portId: instance,
-        port: port,
-    };
+    ports.push(port);
 
     // Receiving messages from parent windows/tabs.
-    port.onmessage = messageEvent => {
-        let port = messageEvent.target;
-        let data = messageEvent.data;
-        let tracker = port.tracker;
+    port.onmessage = event => {
+        let data = event.data;
         let eventType = data.type;
-        let channel = `${data.channel}`;
+        let channel = data.channel;
 
         switch (eventType) {
             case 'subscribe':
@@ -53,12 +43,11 @@ onconnect = event => {
 
             case 'publish':
                 console.log(`Publishing to: ${channel}`);
-                data.portId = tracker.portId;
                 pubnub.publish({ channel: channel, message: data });
                 break;
 
             default:
-                console.warn('unhandled eventType in agent-worker.js');
+                console.warn('unhandled eventType in simple-worker.js');
         }
     }
 }
