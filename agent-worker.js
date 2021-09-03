@@ -50,7 +50,7 @@ setInterval( () => {
         // TODO the agent is totally gone away, do something
         // cleanup()
     }
-}, 1000 );
+}, 2000 );
 
 // Add Listener to WAN messaging to receive data from remote users and devices
 console.log('pubnub.addListener');
@@ -60,18 +60,19 @@ pubnub.addListener({
     },
     message: message => {
         let channel = message.channel;
-        let portId = channel.split('.')[0];
-        let tracker = ports[`portId:${portId}`];
-        let port = tracker.port;
 
         message.type = 'pubnubMessage';
 
         // --------
-        // Send to Originating Tab
+        // Send to Target Tab
+        //let portId = message.message.portId;
+        //console.log('portId','portId','portId','portId',portId,message);
+        //let tracker = ports[`portId:${portId}`];
+        //let port = tracker.port;
         //port.postMessage(message);
 
         // --------
-        // Alternatively this message can be broadcast to all tabs like this:
+        // Alternatively the message can be broadcast to all tabs like this:
         Object.keys(ports).forEach(key => {
             const tracker = ports[key];
             const port = tracker.port;
@@ -101,7 +102,7 @@ onconnect = event => {
         let data = messageEvent.data;
         let tracker = port.tracker;
         let eventType = data.type;
-        let channel = `${tracker.id}.${data.channel}`;
+        let channel = `${data.channel}`;
 
         console.log('received a message inside webworker', data, messageEvent);
         data.type = 'echo';
@@ -111,11 +112,11 @@ onconnect = event => {
             case 'subscribe':
                 console.log(`Subscribing to: ${channel}`);
                 pubnub.subscribe({ channels: [channel] });
-                //pubnub.subscribe({ channels: ["hello_world"] });
                 break;
 
             case 'publish':
                 console.log(`Publishing to: ${channel}`);
+                data.portId = tracker.id;
                 pubnub.publish({ channel: channel, message: data });
                 break;
 
