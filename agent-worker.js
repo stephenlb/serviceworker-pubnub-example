@@ -20,18 +20,18 @@ setInterval( () => {
 
     Object.keys(ports).forEach( key => {
         const port = ports[key];
-        console.log('port:', port, 'key:', key);
-        console.log(port);
+        const lastSeen = Math.round((now - port.tab.lastSeen) / 1000);
 
-        return;
-        allTabsInactive ||= port.tab.active;
+        console.info(`Agent is considered inactive for ${lastSeen} seconds on tab: ${port.id}`);
+
+        allTabsInactive ||= !port.tab.active;
         if (!port.tab.active) return;
-        if (now - port.lastSeen > considerInactiveAfter) {
+        if (now - port.tab.lastSeen > considerInactiveAfter) {
             console.warn(`Agent is considered Inactive for tab: ${port.id}`);
             // TODO consider the angent inactive in this tab
             // yellow status
         }
-        if (now - port.lastSeen > considerOfflineAfter) {
+        if (now - port.tab.lastSeen > considerOfflineAfter) {
             console.warn(`Agent is considered OFFLINE for tab: ${port.id}`);
             // TODO consider the angent as abandond inactive in this tab
             // offline status
@@ -68,7 +68,7 @@ onconnect = event => {
     let portTracker = ports[`portId:${++instance}`] = {
         id: instance,
         port: port,
-        tab: { active: true }
+        tab: { active: true, lastSeen: +new Date() }
     };
     port.onmessage = messageEvent => {
         let data = messageEvent.data;
