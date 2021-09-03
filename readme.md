@@ -4,7 +4,9 @@
 `./start` to start the docker server.
 
 ```shell
-open https://localhost:4443/
+open https://localhost:8000/
 ```
 
+### Access Debugging for Shard WebWorker
 
+[chrome://inspect/#workers](chrome://inspect/#workers)
