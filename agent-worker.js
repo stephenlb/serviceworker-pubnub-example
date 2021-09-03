@@ -53,10 +53,10 @@ setInterval( () => {
 // Add Listener to WAN messaging to receive data from remote users and devices
 console.log('pubnub.addListener');
 pubnub.addListener({
-    status: function(statusEvent) {
+    status: statusEvent => {
         console.info(statusEvent);
     },
-    message: function(message) {
+    message: message => {
         let channel = message.channel;
         let portId = channel.split('.')[0];
         let tracker = ports[`portId:${portId}`];
@@ -65,7 +65,7 @@ pubnub.addListener({
         message.type = 'pubnubMessage';
         port.postMessage(message);
     },
-    presence: function(presenceEvent) {
+    presence: presenceEvent => {
         // This is where you handle presence. Not important for now :)
     }
 });
