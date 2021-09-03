@@ -24,4 +24,4 @@ open http://localhost:8000/simple-example/index.html
 
 Open `chrome://inspect/#workers` in chrome.
 
-Find the `agent-worker.js` secion and click `inspect`.
+Find the `agent-worker.js` or `simple-worker.js` secion and click `inspect`.
