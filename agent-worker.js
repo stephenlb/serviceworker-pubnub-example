@@ -30,6 +30,7 @@ setInterval( () => {
             // TODO consider the angent as abandond inactive in this tab
             // offline status
             // send pubnub.publish({ channel .... etc.
+            // cleanup(port)...
         }
     }
 
@@ -87,6 +88,11 @@ onconnect = event => {
 }
 
 ondisconnect = event => {
+    let port = event.ports[0];
     // TODO clear this tab from stuff...
     // TODO cleanup etc.
+}
+
+function cleanup(port) {
+    // TODO
 }
