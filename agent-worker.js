@@ -44,7 +44,7 @@ setInterval( () => {
     });
 
     if (allTabsInactive) {
-        console.warn('Agent is considered inactive for ALL TABS');
+        console.warn('Agent is considered away for ALL TABS');
         // TODO the agent is totally gone away, do something
     }
 }, 1000 );

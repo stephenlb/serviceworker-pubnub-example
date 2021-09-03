@@ -4,8 +4,28 @@ const worker = new SharedWorker('agent-worker.js');
 const supportAgentID =  123;
 const supportChatThreadID = 6;
 
+window.addEventListener('focus', event => {
+    console.log('Tab Active: ', true);
+    worker.port.postMessage({
+        type: 'activity',
+        supportAgentID: supportAgentID,
+        supportChatThreadID: supportChatThreadID,
+        active: true
+    });
+} );
+
+window.addEventListener('blur', event => {
+    console.log('Tab Active: ', false);
+    worker.port.postMessage({
+        type: 'activity',
+        supportAgentID: supportAgentID,
+        supportChatThreadID: supportChatThreadID,
+        active: false
+    });
+} );
+
 document.addEventListener('visibilitychange', event => {
-    console.log('sending message to shared webworker');
+    console.log('Tab Active: ', document.visibilityState === 'visible');
     worker.port.postMessage({
         type: 'activity',
         supportAgentID: supportAgentID,
