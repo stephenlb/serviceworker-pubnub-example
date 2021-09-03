@@ -116,7 +116,7 @@ onconnect = event => {
 
             case 'publish':
                 console.log(`Publishing to: ${channel}`);
-                data.portId = tracker.id;
+                data.portId = tracker.portId;
                 pubnub.publish({ channel: channel, message: data });
                 break;
 
