@@ -1,10 +1,7 @@
 'use strict';
 
+// Access the shared background service
 const worker = new SharedWorker('simple-worker.js');
-
-worker.onerror = event => {
-    console.log('There is an error with the worker!', event);
-};
 
 // Subscribe to PubNub channel
 worker.port.postMessage({
