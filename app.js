@@ -9,8 +9,8 @@ document.addEventListener('visibilitychange', event => {
         supportAgentID: 123,
         supportChatThreadID: 6,
         active: document.visibilityState === 'visible'
-    })
-})
+    });
+});
 
 // Subscribe to centralized PubNub instances
 worker.port.postMessage({

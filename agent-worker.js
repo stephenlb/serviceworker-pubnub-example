@@ -1,4 +1,5 @@
 'use strict';
+importScripts('pubnub.min.js');
 
 // Send/Receive messages from Other Users and Devices
 const pubnub = new PubNub({
@@ -16,7 +17,10 @@ const considerOfflineAfter = 120 * 1000; // 2 minutes (in milliseconds)
 // Check Tab Activity
 setInterval( () => {
     const now = +new Date();
+    let allTabsInactive = false; // check if all are inactive
+
     for (port of ports) {
+        allTabsInactive ||= port.tab.active;
         if (!port.tab.active) continue;
         if (now - port.lastSeen > considerInactiveAfter) {
             // TODO consider the angent inactive in this tab
@@ -28,6 +32,10 @@ setInterval( () => {
             // send pubnub.publish({ channel .... etc.
         }
     }
+
+    if (allTabsInactive) {
+        // TODO the agent is totally gone away, do something
+    }
 }, 1000 );
 
 // Add Listener to WAN messaging to receive data from remote users and devices
@@ -38,7 +46,7 @@ pubnub.addListener({
         }
     },
     message: function(msg) {
-        
+        // TODO route to parent tab
     },
     presence: function(presenceEvent) {
         // This is where you handle presence. Not important for now :)
@@ -78,3 +86,7 @@ onconnect = event => {
     }
 }
 
+ondisconnect = event => {
+    // TODO clear this tab from stuff...
+    // TODO cleanup etc.
+}
