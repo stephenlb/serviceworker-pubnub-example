@@ -1,6 +1,7 @@
 # PubNub WebWorker Example
 
-This will share a single PubNub connection in a shared webworker.
+This example shows how to use a single PubNub connection across many tabs and windows.
+This is accomlished by using a shared WebWorker `SharedWorker()`.
 This is great for reducing resources used for web apps.
 This makes the end-user experience faster and more pleasant.
 
@@ -10,7 +11,7 @@ This makes the end-user experience faster and more pleasant.
 open https://localhost:8000/
 ```
 
-### Access Debugging for Shard WebWorker
+### Access Debugging for Shared WebWorker
 
 Open `chrome://inspect/#workers` in chrome.
 
