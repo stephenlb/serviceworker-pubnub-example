@@ -1,16 +1,22 @@
 'use strict';
 
 const worker = new SharedWorker('agent-worker.js');
+const supportAgentID =  123;
+const supportChatThreadID = 6;
 
 document.addEventListener('visibilitychange', event => {
     console.log('sending message to shared webworker');
     worker.port.postMessage({
         type: 'activity',
-        supportAgentID: 123,
-        supportChatThreadID: 6,
+        supportAgentID: supportAgentID,
+        supportChatThreadID: supportChatThreadID,
         active: document.visibilityState === 'visible'
     });
 });
+worker.onerror = event => {
+    console.log('There is an error with your worker!', event);
+};
+
 
 // Subscribe to centralized PubNub instances
 worker.port.postMessage({
@@ -29,6 +35,10 @@ worker.port.onmessage = function(event) {
     switch (eventType) {
         case 'pubnubMessage':
             console.log('received pubnubMessage', data);
+            break;
+
+        case 'echo':
+            console.log('received echo', data);
             break;
 
         default:
