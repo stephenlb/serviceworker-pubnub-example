@@ -31,12 +31,12 @@ setInterval( () => {
         console.info(`Agent is considered inactive for ${lastSeen} seconds on tab: ${port.id}`);
         if (now - port.tab.lastSeen > considerInactiveAfter) {
             console.warn(`Agent is considered Inactive for tab: ${port.id}`);
-            // TODO consider the angent inactive in this tab
+            // TODO consider the agent inactive in this tab
             // yellow status
         }
         if (now - port.tab.lastSeen > considerOfflineAfter) {
             console.warn(`Agent is considered OFFLINE for tab: ${port.id}`);
-            // TODO consider the angent as abandond inactive in this tab
+            // TODO consider the agent as abandoned and inactive in this tab
             // offline status
             // send pubnub.publish({ channel .... etc.
             // cleanup(port)...
@@ -75,13 +75,14 @@ pubnub.addListener({
 onconnect = event => {
     let port = event.ports[0];
 
-    //TODO fix
+    // Save reference to port to be used later asynchronously.
     port.tracker = ports[`portId:${++instance}`] = {
         id: instance,
         port: port,
         tab: { active: true, lastSeen: +new Date() }
     };
 
+    // Receiving messages from parent windows/tabs.
     port.onmessage = messageEvent => {
         let data = messageEvent.data;
         let eventType = data.type;
