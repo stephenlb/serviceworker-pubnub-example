@@ -9,7 +9,8 @@ console.log(3);
 //if( 'function' === typeof importScripts)
 //    const PubNub = importScripts('pubnub.js');
 setTimeout( () => {
-    importScripts('pubnub.min.js');
+    console.log('importing pubnub.js');
+    importScripts('pubnub.js');
 }, 1000 );
 
 
