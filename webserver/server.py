@@ -5,16 +5,18 @@
 #    https://localhost:4443
 
 import http.server
-import ssl
-port = 4443
+##import ssl
+port = 8000
 host = 'localhost'
 server_address = ('0.0.0.0', port)
 httpd = http.server.HTTPServer(server_address, http.server.SimpleHTTPRequestHandler)
+"""
 httpd.socket = ssl.wrap_socket(
     httpd.socket,
     server_side=True,
     certfile='webserver/localhost.crt',
     keyfile='webserver/localhost.key')
-print(f"Server running on https://{host}:{port}")
+"""
+print(f"Server running on http://{host}:{port}")
 try: httpd.serve_forever()
 except: 0
