@@ -52,7 +52,7 @@ setInterval( () => {
     });
 }, 1000 );
 
-// Recenve Message from PubNub and other WebWorker Events
+// Receive Messages from PubNub and other WebWorker Events
 worker.port.onmessage = function(event) {
     let data = event.data;
     let eventType = data.type;
