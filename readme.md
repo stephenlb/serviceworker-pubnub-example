@@ -34,3 +34,11 @@ open http://localhost:8000/simple-example/index.html
 Open `chrome://inspect/#workers` in chrome.
 
 Find the `agent-worker.js` or `simple-worker.js` section and click `inspect`.
+
+
+### Future Forward
+
+Ideally the WebWorker logic is encapsulated
+in a wrapper SDK which
+matches the PubNub SDK methods.
+This would be a good next step in advancing usability.
