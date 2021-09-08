@@ -1,48 +1,23 @@
 'use strict';
 
 // Access the shared background service
-//const worker = new SharedWorker('simple-worker.js');
 navigator.serviceWorker.register('service-worker.js');
-
-// Subscribe to PubNub channel
-setTimeout(() => {
-    const channel = `channel-${+new Date()}`;
+navigator.serviceWorker.ready.then(() => {
+    // Subscribe to PubNub channel
     navigator.serviceWorker.controller.postMessage({
         type: 'subscribe',
-        channel: channel
+        channel: 'my_channel'
     });
-
-    setTimeout(() => {
-        navigator.serviceWorker.controller.postMessage({
-            type: 'subscribe',
-            channel: 'my_new_channel'
-        });
-    }, 1000);
-
-    setTimeout(() => {
-        navigator.serviceWorker.controller.postMessage({
-            type: 'subscribe',
-            channel: 'my_new_channel'
-        });
-    }, 2000);
-
-    setTimeout(() => {
-        navigator.serviceWorker.controller.postMessage({
-            type: 'subscribe',
-            channel: 'RE_my_new_channel'
-        });
-    }, 3000);
 
     // Publish in a loop for testing purpsoes
     setInterval(() => {
         navigator.serviceWorker.controller.postMessage({
             type: 'publish',
-            channel: channel,
-            extraData: 'Hurray!'
+            channel: 'my_channel',
+            extraData: 'Hurray it works!'
         });
     }, 1000);
-}, 1000);
-
+});
 
 // Receive Messages from PubNub and other WebWorker Events
 navigator.serviceWorker.addEventListener('message', event => {
@@ -50,7 +25,8 @@ navigator.serviceWorker.addEventListener('message', event => {
     let eventType = data.type;
 
     // Show output on the screen
-    document.querySelector("#result").innerHTML += `<div>${JSON.stringify(data)}</div>`;
+    document.querySelector("#result").innerHTML +=
+        `<div>${JSON.stringify(data)}</div>`;
 
     switch (eventType) {
         case 'pubnubMessage':

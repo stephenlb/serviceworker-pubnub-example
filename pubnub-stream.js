@@ -22,7 +22,7 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     let filterExp  = `${filter?'&filter-expr=':''}${encodeURIComponent(filter)}`;
     let params     = `auth=${authkey}${filterExp}`;
     let decoder    = new TextDecoder();
-    let boundry    = /(?<=,"\d{17}"\])[\n,]*/g; // TODO firefox bug
+    let boundry    = /(?<=,"\d{17}"\])[\n,]*/g;
     let resolver   = null;
     let promissory = () => new Promise(resolve => resolver = (data) => resolve(data) ); 
     let receiver   = promissory();
@@ -33,14 +33,21 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     let controller = new AbortController();
     let signal     = controller.signal;
 
-    // Reset stream for changing subscriptions
-    if (PubNub.subscription) PubNub.subscription.unsubscribe();
-
     // Prepare Channel List
     if (!PubNub.channels) PubNub.channels = [];
     if (PubNub.channels.indexOf(channel) == -1) {
         PubNub.channels.push(channel);
         PubNub.channels.sort();
+
+        // Reset stream for changing subscriptions
+        if (PubNub.subscription) {
+            PubNub.subscription.unsubscribe();
+            PubNub.subscription = null;
+        }
+    }
+    else {
+        // Already Subscribed to this channel
+        return PubNub.subscription;
     }
 
     // Start Stream
@@ -52,13 +59,13 @@ const subscribe = PubNub.subscribe = (setup={}) => {
         buffer  = '';
 
         try      { response = await fetch(`${uri}?${params}`, {signal}) }
-        catch(e) { return continueStream(1000)                          }
+        catch(e) { console.error(e); return continueStream(10)          }
 
-        try      { reader = response.body.getReader() }
-        catch(e) { return continueStream(1000)        }
+        try      { reader = response.body.getReader()          }
+        catch(e) { console.error(e); return continueStream(10) }
 
-        try      { readStream()                       }
-        catch(e) { return continueStream(1000)        }
+        try      { readStream()                                }
+        catch(e) { console.error(e); return continueStream(10) }
     }
 
     function continueStream(delay) {
