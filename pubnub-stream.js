@@ -1,14 +1,15 @@
-(async ()=>{ 
-'use strict';
-
 const PubNub = (setup) => {
     for (let key of Object.keys(setup)) PubNub[key] = setup[key];
 };
+
+(async ()=>{ 
+'use strict';
 
 const defaultSubkey  = 'demo';
 const defaultPubkey  = 'demo';
 const defaultChannel = 'pubnub';
 const defaultOrigin  = 'ps.pndsn.com';
+const defaultUUID    = `uuid-${+new Date()}`;
 
 const subscribe = PubNub.subscribe = (setup={}) => {
     let subkey     = setup.subkey     || PubNub.subscribeKey || defaultSubkey;
@@ -18,7 +19,8 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     let filter     = setup.filter     || PubNub.filter       || '';
     let authkey    = setup.authkey    || PubNub.authKey      || '';
     let timetoken  = setup.timetoken  || '0';
-    let params     = `auth=${authkey}&filter-expr=${encodeURIComponent(filter)}`;
+    let filterExp  = `${filter?'&filter-expr=':''}${encodeURIComponent(filter)}`;
+    let params     = `auth=${authkey}${filterExp}`;
     let decoder    = new TextDecoder();
     let boundry    = /(?<=,"\d{17}"\])[\n,]*/g; // TODO firefox bug
     let resolver   = null;
@@ -28,16 +30,29 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     let response   = null;
     let buffer     = '';
     let subscribed = true;
+    let controller = new AbortController();
+    let signal     = controller.signal;
+
+    // Reset stream for changing subscriptions
+    if (PubNub.subscription) PubNub.subscription.unsubscribe();
+
+    // Prepare Channel List
+    if (!PubNub.channels) PubNub.channels = [];
+    if (PubNub.channels.indexOf(channel) == -1) {
+        PubNub.channels.push(channel);
+        PubNub.channels.sort();
+    }
 
     // Start Stream
     startStream();
 
     async function startStream() {
-        let uri = `https://${origin}/stream/${subkey}/${channel}/0/${timetoken}`;
+        let channels = PubNub.channels.join(',');
+        let uri = `https://${origin}/stream/${subkey}/${channels}/0/${timetoken}`;
         buffer  = '';
 
-        try      { response = await fetch(`${uri}?${params}`) }
-        catch(e) { return continueStream(1000)                }
+        try      { response = await fetch(`${uri}?${params}`, {signal}) }
+        catch(e) { return continueStream(1000)                          }
 
         try      { reader = response.body.getReader() }
         catch(e) { return continueStream(1000)        }
@@ -91,15 +106,19 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     }
 
     subscription.messages    = receiver => messages = setup.messages = receiver;
-    subscription.unsubscribe = () => subscribed = false;
+    subscription.unsubscribe = () => {
+        subscribed = false;
+        controller.abort();
+    };
 
-    return subscription;
+    return (PubNub.subscription = subscription);
 };
 
 const publish = PubNub.publish = async (setup={}) => {
     let pubkey    = setup.pubkey     || PubNub.publishKey   || defaultPubkey;
     let subkey    = setup.subkey     || PubNub.subscribeKey || defaultSubkey;
     let channel   = setup.channel    || PubNub.channel      || defaultChannel;
+    let uuid      = setup.uuid       || PubNub.uuid         || defaultUUID;
     let origin    = setup.origin     || PubNub.origin       || defaultOrigin;
     let authkey   = setup.authkey    || PubNub.authKey      || '';
     let message   = setup.message    || 'missing-message';
