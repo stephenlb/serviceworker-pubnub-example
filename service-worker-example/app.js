@@ -14,7 +14,9 @@ navigator.serviceWorker.ready.then(() => {
         navigator.serviceWorker.controller.postMessage({
             type: 'publish',
             channel: 'my_channel',
-            extraData: 'Hurray it works!'
+            extraData: 'Hurray it works!',
+            time: new Date() + '',
+            timestamp: +new Date(),
         });
     }, 1000);
 });
@@ -25,7 +27,7 @@ navigator.serviceWorker.addEventListener('message', event => {
     let eventType = data.type;
 
     // Show output on the screen
-    document.querySelector("#result").innerHTML +=
+    document.querySelector("#result").innerHTML =
         `<div>${JSON.stringify(data)}</div>`;
 
     switch (eventType) {
