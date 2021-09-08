@@ -22,7 +22,7 @@ const subscribe = PubNub.subscribe = (setup={}) => {
     let filterExp  = `${filter?'&filter-expr=':''}${encodeURIComponent(filter)}`;
     let params     = `auth=${authkey}${filterExp}`;
     let decoder    = new TextDecoder();
-    let boundry    = /(?<=,"\d{17}"\])[\n,]*/g;
+    let boundry    = /[\n]/g;
     let resolver   = null;
     let promissory = () => new Promise(resolve => resolver = (data) => resolve(data) ); 
     let receiver   = promissory();
@@ -59,22 +59,25 @@ const subscribe = PubNub.subscribe = (setup={}) => {
         buffer  = '';
 
         try      { response = await fetch(`${uri}?${params}`, {signal}) }
-        catch(e) { console.error(e); return continueStream(10)          }
+        catch(e) { return continueStream()                              }
 
-        try      { reader = response.body.getReader()          }
-        catch(e) { console.error(e); return continueStream(10) }
+        try      { reader = response.body.getReader() }
+        catch(e) { return continueStream()            }
 
-        try      { readStream()                                }
-        catch(e) { console.error(e); return continueStream(10) }
+        try      { readStream()                       }
+        catch(e) { return continueStream()            }
     }
 
     function continueStream(delay) {
         if (!subscribed) return;
-        setTimeout( () => startStream(), delay || 1000 );
+        setTimeout( () => startStream(), delay || 1 );
     }
 
     async function readStream() {
-        let chunk   = await reader.read().catch(continueStream);
+        let chunk   = await reader.read().catch(error => {
+            //console.error(error);
+            continueStream();
+        });
         if (!chunk) return;
 
         buffer   += decoder.decode(chunk.value || new Uint8Array);
@@ -99,12 +102,12 @@ const subscribe = PubNub.subscribe = (setup={}) => {
             }
             catch(error) {
                 // Typically chunk is unfinished JSON in buffer.
-                // console.error(error, message, num);
+                //console.error(error, message, num);
             }
         });
 
         if (!chunk.done) readStream();
-        else             continueStream(10);
+        else             continueStream();
     }
 
     // Subscription Structure
