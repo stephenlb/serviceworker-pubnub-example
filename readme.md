@@ -1,44 +1,24 @@
-# PubNub WebWorker Example
+# PubNub Service WebWorker Example
 
 This example shows how to use a single PubNub connection across many tabs and windows.
-This is accomplished by using a shared WebWorker `SharedWorker()`.
+This is accomplished by using a Service Worker
+`navigator.serviceWorker.register('service-worker.js');`.
 This is great for reducing resources used for web apps.
 This makes the end-user experience faster and more pleasant.
 
 `./start` to start the docker server.
 
-### Advanced Tracked Tabs Example
+### Service Workers Example
 
-This example shows how to track individual tabs
-by their activity.
-Events like `focus`, `blur` and `visibilitychange` will send activity notifications
-to the shared web worker.
-The shared worker will track each tab's activity over time.
-Eventually marking each tab as inactive.
+Service Workers are the W3C standard for sharing resources
+between tabs/windows in a browser.
 
 ```shell
-open https://localhost:8000/
+open http://localhost:8000/service-worker-example/index.html
 ```
 
-### Simple Example
+### Access Debugging for Service Worker
 
-If you are looking for an extra simple example,
-then check out the simple-example:
+Open `chrome://inspect/#service-workers` in chrome.
 
-```shell
-open http://localhost:8000/simple-example/index.html
-```
-
-### Access Debugging for Shared WebWorker
-
-Open `chrome://inspect/#workers` in chrome.
-
-Find the `agent-worker.js` or `simple-worker.js` section and click `inspect`.
-
-
-### Future Forward
-
-Ideally the WebWorker logic is encapsulated
-in a wrapper SDK which
-matches the PubNub SDK methods.
-This would be a good next step in advancing usability.
+Find the `localhost` section and click `inspect`.
