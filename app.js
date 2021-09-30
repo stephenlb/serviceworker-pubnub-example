@@ -3,6 +3,11 @@
 // Access the shared background service
 navigator.serviceWorker.register('service-worker.js');
 navigator.serviceWorker.ready.then(() => {
+    return new Promise(resolve => {
+        if (navigator.serviceWorker.controller) return resolve();
+        navigator.serviceWorker.addEventListener('controllerchange', e => resolve());
+    });
+}).then(() => {
     // Subscribe to PubNub channel
     navigator.serviceWorker.controller.postMessage({
         type: 'subscribe',
@@ -22,17 +27,18 @@ navigator.serviceWorker.ready.then(() => {
 });
 
 // Receive Messages from PubNub and other WebWorker Events
+let counter = 0;
 navigator.serviceWorker.addEventListener('message', event => {
     let data = event.data;
     let eventType = data.type;
 
     // Show output on the screen
     document.querySelector("#result").innerHTML =
-        `<div>${JSON.stringify(data)}</div>`;
+        `<div><strong>${++counter}:</strong> ${JSON.stringify(data)}</div>`;
 
     switch (eventType) {
         case 'pubnubMessage':
-            console.log('Received PubNub Message', data);
+            console.log('Received from:', data.channel);
             break;
 
         default:

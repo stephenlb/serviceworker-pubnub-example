@@ -1,5 +1,3 @@
-# PubNub Service WebWorker Example
-
 This example shows how to use a single PubNub connection across many tabs and windows.
 This is accomplished by using a Service Worker
 `navigator.serviceWorker.register('service-worker.js');`.
@@ -14,7 +12,7 @@ Service Workers are the W3C standard for sharing resources
 between tabs/windows in a browser.
 
 ```shell
-open http://localhost:8000/service-worker-example/index.html
+open http://localhost:8000/index.html
 ```
 
 ### Access Debugging for Service Worker

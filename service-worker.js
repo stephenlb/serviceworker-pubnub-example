@@ -1,5 +1,5 @@
 'use strict';
-importScripts('/pubnub-stream.js');
+importScripts('pubnub-stream.js');
 
 // Send and Receive messages from other users and devices
 PubNub({

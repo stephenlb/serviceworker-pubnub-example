@@ -59,13 +59,13 @@ const subscribe = PubNub.subscribe = (setup={}) => {
         buffer  = '';
 
         try      { response = await fetch(`${uri}?${params}`, {signal}) }
-        catch(e) { return continueStream()                              }
+        catch(e) { console.error(e); return continueStream(1000)        }
 
-        try      { reader = response.body.getReader() }
-        catch(e) { return continueStream()            }
+        try      { reader = response.body.getReader()            }
+        catch(e) { console.error(e); return continueStream(1000) }
 
-        try      { readStream()                       }
-        catch(e) { return continueStream()            }
+        try      { readStream()                                  }
+        catch(e) { console.error(e); return continueStream(1000) }
     }
 
     function continueStream(delay) {
@@ -75,7 +75,7 @@ const subscribe = PubNub.subscribe = (setup={}) => {
 
     async function readStream() {
         let chunk   = await reader.read().catch(error => {
-            //console.error(error);
+            console.error(error);
             continueStream();
         });
         if (!chunk) return;
@@ -98,11 +98,11 @@ const subscribe = PubNub.subscribe = (setup={}) => {
 
                 // Free successfully consumed message
                 parts[num] = '';
-                buffer = parts.join('\n');
+                buffer = parts.filter(p => p).join('\n');
             }
             catch(error) {
                 // Typically chunk is unfinished JSON in buffer.
-                //console.error(error, message, num);
+                console.error(error, message, num);
             }
         });
 
