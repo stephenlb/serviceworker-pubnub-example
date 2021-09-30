@@ -3,8 +3,10 @@
 // Access the shared background service
 navigator.serviceWorker.register('service-worker.js');
 navigator.serviceWorker.ready.then(() => {
-    // Solve Hard Refresh to reload and regain controller
-    if (!navigator.serviceWorker.controller) location.reload();
+    // Solve Hard Refresh to reload
+    if (!navigator.serviceWorker.controller) {
+        return location.reload();
+    }
 
     // Subscribe to PubNub channel
     navigator.serviceWorker.controller.postMessage({

@@ -35,16 +35,16 @@ self.addEventListener('message', event => {
             break;
 
         case 'publish':
-            console.log(`Publishing to: ${channel}`);
-            PubNub.publish({ channel: channel, message: data });
-            break;
+            console.log(`Publishing to: ${channel}`); PubNub.publish({ channel: channel, message: data }); break;
 
         default:
             console.warn('unhandled eventType in simple-worker.js');
     }
 });
 
-// Connect new browser instances
+self.addEventListener('install', event => {
+    event.waitUntil(self.skipWaiting());
+});
 self.addEventListener('activate', event => {
     event.waitUntil(self.clients.claim());
 });
